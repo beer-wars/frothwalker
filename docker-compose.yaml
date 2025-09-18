@@ -1,31 +1,11 @@
-version: "3.1"
 services:
-  subspace:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - HOSTNAME
-        - PORT
-        - MAGIC
-        - SHARED_KEY
-    image: beer-wars/subspace
-    container_name: subspace
+  wireguard:
+    build: ./wireguard
+    network_mode: host
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun
-    networks:
-      - subspace
-    ports:
-      - '8355:8355'
-      - '139:139'
-      - '445:445'
-networks:
-  subspace:
-    driver: macvlan
-    driver_opts:
-      parent: ens160
-    ipam:
-      config:
-        - subnet: 172.83.55.0/30
+    container_name: wireguard
+    stdin_open: true
+    tty: true
+    command: sleep infinity
+    
