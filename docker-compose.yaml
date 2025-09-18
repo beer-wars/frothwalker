@@ -1,10 +1,19 @@
 services:
-  wireguard:
-    build: ./wireguard
+#  wireguard:
+#    build: ./services/wireguard
+#    cap_add:
+#      - NET_ADMIN
+#    container_name: wireguard
+#    stdin_open: true
+#    tty: true
+#    command: sleep infinity
+    
+  nginx:
+    build: ./services/nginx
     network_mode: host
     cap_add:
       - NET_ADMIN
-    container_name: wireguard
+    container_name: nginx
     stdin_open: true
     tty: true
     command: sleep infinity
