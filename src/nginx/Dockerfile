@@ -6,8 +6,11 @@ RUN apt-get update && \
 
 WORKDIR /app
 
+RUN rm /etc/nginx/conf.d/default.conf \
+  && mkdir -p /etc/nginx/stream.d \
+  && echo "include /etc/nginx/stream.d/*.conf;" >> /etc/nginx/nginx.conf
+
 COPY scripts ./scripts
-COPY default.conf /etc/nginx/conf.d/default.conf
 RUN chmod +x scripts/*.sh
 
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
