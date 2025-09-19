@@ -1,6 +1,19 @@
 services:
+  init:
+    build: ./src/init
+    image: frothwalker/init
+    container_name: fw-init
+    network_mode: host
+    user: "root"
+    restart: "no"
+    environment:
+      test: test
+    volumes:
+      - ./config.yaml:/data/config.yaml
+      - nginx:/data/nginx
+
 #  wireguard:
-#    build: ./services/wireguard
+#    build: ./src/wireguard
 #    cap_add:
 #      - NET_ADMIN
 #    container_name: wireguard
@@ -9,12 +22,19 @@ services:
 #    command: sleep infinity
     
   nginx:
-    build: ./services/nginx
+    build: ./src/nginx
+    image: frothwalker/nginx
+    container_name: fw-nginx
+    restart: always
     network_mode: host
     cap_add:
       - NET_ADMIN
-    container_name: nginx
-    stdin_open: true
-    tty: true
-    command: sleep infinity
-    
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    volumes:
+      - nginx:/data
+
+volumes:
+  nginx:
+  wireguard:

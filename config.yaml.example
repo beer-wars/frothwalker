@@ -1,0 +1,17 @@
+gateway:
+  interface: ens18
+
+services:
+  test:
+    domain: test.example.com
+    forward_to: test.example.com
+
+peers:
+  alpha:
+    host: alpha.example.com
+    psk: abc123
+    gateway_ip: 192.168.0.100
+  beta:
+    host: beta.example.com
+    psk: xyz789
+    gateway_ip: 192.168.0.200

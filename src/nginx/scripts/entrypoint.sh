@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+sleep 2
+
+$SCRIPT_DIR/add_gateway_ips.sh
+$SCRIPT_DIR/build_nginx_config.sh
+
+nginx -g "daemon off;"
+
