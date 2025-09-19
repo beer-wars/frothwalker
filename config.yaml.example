@@ -8,10 +8,18 @@ services:
 
 peers:
   alpha:
-    host: alpha.example.com
-    psk: abc123
-    gateway_ip: 192.168.0.100
+    tunnel:
+      endpoint: alpha.example.com
+      psk: abc123
+      ip: 10.0.0.1
+    gateway:
+      ip: 192.168.0.100
+      ports: [80, 443]
   beta:
-    host: beta.example.com
-    psk: xyz789
-    gateway_ip: 192.168.0.200
+    tunnel:
+      endpoint: beta.example.com
+      psk: xyz789
+      ip: 10.0.0.2
+    gateway:
+      ip: 192.168.0.200
+      ports: [80, 443]

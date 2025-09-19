@@ -28,7 +28,7 @@ def generate_gateway_ips(config):
 
     gateway_ips = []
     for peer_name, peer_cfg in config.get("peers", {}).items():
-        gw_ip = peer_cfg["gateway_ip"]
+        gw_ip = peer_cfg["gateway"]["ip"]
         gateway_ip = f"{gw_ip}/{prefixlen}"
         gateway_ips.append(gateway_ip)
 
@@ -42,9 +42,9 @@ def generate_gateway_ips(config):
 def generate_gateway_nginx_conf(config):
     conf_blocks = ["stream {"]
     for peer_name, peer in config.get("peers", {}).items():
-        gateway_ip = peer["gateway_ip"]
-        tunnel_ip = peer["tunnel_ip"]
-        ports = peer.get("ports", [80, 443])
+        tunnel_ip = peer["tunnel"]["ip"]
+        gateway_ip = peer["gateway"]["ip"]
+        ports = peer["gateway"].get("ports", [80, 443])
 
         listen_lines = "\n    ".join(f"listen {gateway_ip}:{port};" for port in ports)
 
@@ -56,7 +56,7 @@ server {{
 }}"""
             conf_blocks.append(block.strip())
 
-    conf_blocks.append("}")
+    conf_blocks.append("}\n")
     conf_text = "\n\n".join(conf_blocks)
     output_path = Path("/data/nginx/nginx/gateway.conf")
     output_path.parent.mkdir(parents=True, exist_ok=True)
