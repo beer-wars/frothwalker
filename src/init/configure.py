@@ -63,10 +63,78 @@ server {{
     output_path.write_text(conf_text)
 
 
+def generate_proxy_nginx_conf(config):
+    http_blocks = []
+    stream_blocks = []
+
+    for name, svc in config.get("services", {}).items():
+        source = svc["source"]
+        dest = svc["dest"]
+
+        listen_port = source["port"]
+        forward_port = dest["port"] if port in dest else source["port"]
+
+        listen_domain = source.get("domain")
+        forward_domain = dest["domain"] if domain in dest else source["domain"]
+
+        # http services
+        if listen_domain:
+            tls_block = ""
+            tls = source.get("tls")
+            if tls:
+                tls_block = f"""
+    ssl_certificate {tls['crt']};
+    ssl_certificate_key {tls['key']};
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+"""
+
+            block = f"""
+server {{
+    listen {listen_port}{' ssl' if tls else ''};
+    server_name {listen_domain};
+
+    {tls_block.strip() if tls else ''}
+
+    location / {{
+        proxy_pass http://{dest['domain']}:{forward_port};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
+}}
+"""
+            http_blocks.append(block.strip())
+
+        # tcp services
+        else:
+            block = f"""
+server {{
+    listen {listen_port};
+    proxy_pass {dest['domain']}:{forward_port};
+}}
+"""
+            stream_blocks.append(block.strip())
+
+    if http_blocks:
+        http_conf = "\n\n".join(http_blocks)
+        http_path = Path("/data/nginx/nginx/proxies-http.conf")
+        http_path.parent.mkdir(parents=True, exist_ok=True)
+        http_path.write_text(http_conf)
+
+    if stream_blocks:
+        stream_conf = "stream {\n" + "\n\n".join(stream_blocks) + "\n}"
+        stream_path = Path("/data/nginx/nginx/proxy-streams.conf")
+        stream_path.parent.mkdir(parents=True, exist_ok=True)
+        stream_path.write_text(stream_conf)
+
+
 def main():
     config = load_config()
     generate_gateway_ips(config)
     generate_gateway_nginx_conf(config)
+    generate_proxy_nginx_conf(config)
 
 
 if __name__ == "__main__":

@@ -3,23 +3,36 @@ gateway:
 
 services:
   test:
-    domain: test.example.com
-    forward_to: test.example.com
+    source:
+      domain: test.example.com
+      port: 80
+      tle:
+        crt: /cert/tls.crt
+        key: /cert/tls.key
+    dest:
+      domain: test.example.com
+      port: 80
 
 peers:
   alpha:
     tunnel:
       endpoint: alpha.example.com
-      psk: abc123
-      ip: 10.0.0.1
+      ip: 10.0.1.11
+      allowed_ips: 10.0.1.0/24
+      keys:
+        private: abc123
+        public: 321cba
     gateway:
-      ip: 192.168.0.100
+      ip: 192.168.8.81
       ports: [80, 443]
   beta:
     tunnel:
       endpoint: beta.example.com
-      psk: xyz789
-      ip: 10.0.0.2
+      ip: 10.0.2.12
+      allowed_ips: 10.0.2.0/24
+      keys:
+        private: xyz789
+        public: 987zyx
     gateway:
-      ip: 192.168.0.200
+      ip: 192.168.8.82
       ports: [80, 443]
